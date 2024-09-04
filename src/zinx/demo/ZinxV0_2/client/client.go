@@ -14,10 +14,10 @@ func main() {
 		return
 	}
 
+	id := 0
 	for {
 		// 封装消息
 		pack := znet.NewDataPack()
-		id := 1
 		data, err := pack.Pack(znet.NewMessage(uint32(id), []byte("ZinxV0.2 client test message")))
 		_, err = conn.Write(data)
 		if err != nil {
