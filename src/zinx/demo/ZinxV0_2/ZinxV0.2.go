@@ -13,7 +13,7 @@ type PingRouter struct {
 func (pr *PingRouter) Handle(request ziface.IRequest) {
 	fmt.Println("[default router] recv from client: msgID = ", request.GetMsgID(),
 		", data = ", string(request.GetData()))
-	err := request.GetConnection().SendData(1, []byte("ping...ping...ping测试\n"))
+	err := request.GetConnection().SendData(1, []byte("ping...ping...ping测试 默认\n"))
 	if err != nil {
 		return
 	}
@@ -26,7 +26,7 @@ type Router2 struct {
 func (pr *Router2) Handle(request ziface.IRequest) {
 	fmt.Println("[2 router] recv from client: msgID = ", request.GetMsgID(),
 		", data = ", string(request.GetData()))
-	err := request.GetConnection().SendData(1, []byte("ping...ping...ping测试\n"))
+	err := request.GetConnection().SendData(1, []byte("ping...ping...ping测试 2\n"))
 	if err != nil {
 		return
 	}
@@ -39,7 +39,7 @@ type Router3 struct {
 func (pr *Router3) Handle(request ziface.IRequest) {
 	fmt.Println("[3 router] recv from client: msgID = ", request.GetMsgID(),
 		", data = ", string(request.GetData()))
-	err := request.GetConnection().SendData(1, []byte("ping...ping...ping测试\n"))
+	err := request.GetConnection().SendData(1, []byte("ping...ping...ping测试 3\n"))
 	if err != nil {
 		return
 	}
@@ -52,7 +52,7 @@ type Router4 struct {
 func (pr *Router4) Handle(request ziface.IRequest) {
 	fmt.Println("[4 router] recv from client: msgID = ", request.GetMsgID(),
 		", data = ", string(request.GetData()))
-	err := request.GetConnection().SendData(1, []byte("ping...ping...ping测试\n"))
+	err := request.GetConnection().SendData(1, []byte("ping...ping...ping测试 4\n"))
 	if err != nil {
 		return
 	}

@@ -2,6 +2,7 @@ package znet
 
 import (
 	"fmt"
+	"go_code/src/zinx/utils"
 	"go_code/src/zinx/ziface"
 	"net"
 )
@@ -61,13 +62,16 @@ func (c *Connection) StartReader() {
 			continue
 		}
 
-		data, err := pack.Pack(msg)
-		if err != nil {
-			fmt.Println("pack error: ", err)
-			continue
+		req := &Request{
+			conn: c,
+			msg:  msg,
 		}
 
-		c.MsgChan <- data
+		if utils.GlobalVar.WorkerPoolSize > 0 {
+			c.MsgHandler.SendMsgToTaskQueue(req)
+		} else {
+			go c.MsgHandler.DoMsgHandler(req)
+		}
 	}
 }
 
@@ -85,6 +89,7 @@ func (c *Connection) StartWriter() {
 				fmt.Println("Send data error: ", err)
 				return
 			}
+
 		case <-c.ExitChan:
 			// conn已经关闭
 			return

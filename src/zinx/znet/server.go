@@ -33,6 +33,9 @@ func NewServer() *Server {
 
 // start server
 func (this *Server) Start() {
+	// 启动worker工作池
+	this.MsgHandler.StartWorkerPool()
+
 	// 1 连接
 	listener, err := net.Listen(this.IPVersion, fmt.Sprintf("%s:%d", this.IP, this.Port))
 	if err != nil {
