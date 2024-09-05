@@ -5,6 +5,7 @@ import (
 	"go_code/src/zinx/utils"
 	"go_code/src/zinx/ziface"
 	"net"
+	"time"
 )
 
 type Server struct {
@@ -18,6 +19,13 @@ type Server struct {
 	Port int
 	// cmd handler
 	MsgHandler ziface.IMsgHandler
+
+	// connection manager
+	ConnMgr ziface.IConnManager
+
+	// hook
+	OnConnStart func(conn ziface.IConnection)
+	OnConnStop  func(conn ziface.IConnection)
 }
 
 func NewServer() *Server {
@@ -27,6 +35,7 @@ func NewServer() *Server {
 		IP:         utils.GlobalVar.Host,
 		Port:       utils.GlobalVar.TcpPort,
 		MsgHandler: NewMsgHandler(),
+		ConnMgr:    NewConnManager(),
 	}
 	return s
 }
@@ -55,8 +64,29 @@ func (this *Server) Start() {
 			continue
 		}
 
+		// 2.1 设置最大连接数
+		if this.ConnMgr.Len() >= utils.GlobalVar.MaxConn {
+			message := &Message{
+				Id:   100,
+				Data: []byte("Too many connections, server busy, please try again later\n"),
+			}
+			message.DataLen = uint32(len(message.Data))
+
+			dp := NewDataPack()
+			binaryMsg, err := dp.Pack(message)
+			if err != nil {
+				fmt.Println("Pack error:", err)
+				return
+			}
+
+			conn.SetWriteDeadline(time.Now().Add(1 * time.Second))
+			conn.Write(binaryMsg)
+			conn.Close()
+			continue
+		}
+
 		// 3 连接处理
-		dealConn := NewConnection(conn.(*net.TCPConn), cid, this.MsgHandler)
+		dealConn := NewConnection(this, conn.(*net.TCPConn), cid, this.MsgHandler)
 		cid++
 
 		go dealConn.Start()
@@ -65,7 +95,8 @@ func (this *Server) Start() {
 
 // stop server
 func (s *Server) Stop() {
-
+	fmt.Println("[STOP] Zinx server name ", s.Name)
+	s.ConnMgr.ClearConn()
 }
 
 // run server
@@ -78,4 +109,32 @@ func (s *Server) Serve() {
 func (s *Server) AddRouter(id uint32, router ziface.IRouter) {
 	s.MsgHandler.AddRouter(id, router)
 	fmt.Println("Add Router success!")
+}
+
+// get connection manager
+func (s *Server) GetConnMgr() ziface.IConnManager {
+	return s.ConnMgr
+}
+
+// set hook
+func (s *Server) SetOnConnStart(hook func(connection ziface.IConnection)) {
+	s.OnConnStart = hook
+}
+
+func (s *Server) SetOnConnStop(hook func(connection ziface.IConnection)) {
+	s.OnConnStop = hook
+}
+
+func (s *Server) CallOnConnStart(connection ziface.IConnection) {
+	if s.OnConnStart != nil {
+		fmt.Println("Call OnConnStart()...")
+		s.OnConnStart(connection)
+	}
+}
+
+func (s *Server) CallOnConnStop(connection ziface.IConnection) {
+	if s.OnConnStop != nil {
+		fmt.Println("Call OnConnStop()...")
+		s.OnConnStop(connection)
+	}
 }

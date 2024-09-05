@@ -42,7 +42,7 @@ func init() {
 	}
 
 	// 从配置文件中加载一些参数
-	//GlobalVar.Reload()
+	GlobalVar.Reload()
 
 	// 打印全局变量的数据
 	fmt.Println(GlobalVar)

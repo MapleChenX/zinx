@@ -58,13 +58,31 @@ func (pr *Router4) Handle(request ziface.IRequest) {
 	}
 }
 
+func DoConnectionBegin(conn ziface.IConnection) {
+	fmt.Println("Do something when conn starts")
+	conn.SendData(123, []byte("Do something when conn starts\n"))
+}
+
+func DoConnectionEnd(conn ziface.IConnection) {
+	// 用户连接关闭日志
+	fmt.Printf("connection %d/%s closed\n", conn.GetConnID(), conn.RemoteAddr())
+	// 连接关闭无法再发送消息
+}
+
 func main() {
+	// 1 创建一个server句柄
 	server := znet.NewServer()
 
+	// 2 注册连接Hook钩子函数
+	server.SetOnConnStart(DoConnectionBegin)
+	server.SetOnConnStop(DoConnectionEnd)
+
+	// 3 添加router
 	server.AddRouter(0, &PingRouter{})
 	server.AddRouter(1, &Router2{})
 	server.AddRouter(2, &Router3{})
 	server.AddRouter(3, &Router4{})
 
+	// 4 启动server
 	server.Serve()
 }

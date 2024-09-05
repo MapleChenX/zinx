@@ -3,7 +3,7 @@
     "version": "V0.2",
     "host": "0.0.0.0",
     "tcpPort": 1234,
-    "maxConn": 1000,
+    "maxConn": 2,
     "maxPackageSize": 4096,
     "workerPoolSize": 10,
     "maxWorkerTaskLen": 1024
