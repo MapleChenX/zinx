@@ -19,6 +19,13 @@ type IConnection interface {
 	// send message to client
 	SendMsg(msg IMessage) error
 	SendData(id uint32, data []byte) error
+
+	// set property
+	SetProperty(key string, value interface{})
+	// get property
+	GetProperty(key string) (interface{}, error)
+	// remove property
+	RemoveProperty(key string)
 }
 
 // define a function to handle connection business

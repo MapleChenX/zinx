@@ -5,6 +5,7 @@ import (
 	"go_code/src/zinx/utils"
 	"go_code/src/zinx/ziface"
 	"net"
+	"sync"
 )
 
 type Connection struct {
@@ -28,6 +29,12 @@ type Connection struct {
 
 	// handler
 	MsgHandler ziface.IMsgHandler
+
+	// property --- 扩展用
+	Property map[string]interface{}
+
+	// property lock
+	PropertyLock sync.RWMutex
 }
 
 // initialize connection
@@ -40,6 +47,7 @@ func NewConnection(server ziface.IServer, conn *net.TCPConn, connID uint32, hand
 		ExitChan:   make(chan bool, 1),
 		MsgChan:    make(chan []byte),
 		MsgHandler: handler,
+		Property:   make(map[string]interface{}),
 	}
 
 	c.TcpServer.GetConnMgr().Add(c)
@@ -180,4 +188,32 @@ func (c *Connection) SendData(id uint32, data []byte) error {
 	}
 
 	return c.SendMsg(msg)
+}
+
+// set property
+func (c *Connection) SetProperty(key string, value interface{}) {
+	c.PropertyLock.Lock()
+	defer c.PropertyLock.Unlock()
+
+	c.Property[key] = value
+}
+
+// get property
+func (c *Connection) GetProperty(key string) (interface{}, error) {
+	c.PropertyLock.RLock()
+	defer c.PropertyLock.RUnlock()
+
+	if value, ok := c.Property[key]; ok {
+		return value, nil
+	} else {
+		return nil, fmt.Errorf("no property found")
+	}
+}
+
+// remove property
+func (c *Connection) RemoveProperty(key string) {
+	c.PropertyLock.Lock()
+	defer c.PropertyLock.Unlock()
+
+	delete(c.Property, key)
 }

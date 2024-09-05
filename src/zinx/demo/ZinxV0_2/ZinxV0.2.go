@@ -61,12 +61,20 @@ func (pr *Router4) Handle(request ziface.IRequest) {
 func DoConnectionBegin(conn ziface.IConnection) {
 	fmt.Println("Do something when conn starts")
 	conn.SendData(123, []byte("Do something when conn starts\n"))
+
+	// 设置连接属性 --- 扩展内容测试
+	conn.SetProperty("Name", "zinx")
+	fmt.Println("Set Name = zinx")
 }
 
 func DoConnectionEnd(conn ziface.IConnection) {
 	// 用户连接关闭日志
 	fmt.Printf("connection %d/%s closed\n", conn.GetConnID(), conn.RemoteAddr())
-	// 连接关闭无法再发送消息
+
+	// 获取连接属性 --- 扩展内容测试
+	if name, err := conn.GetProperty("Name"); err == nil {
+		fmt.Println("Name = ", name)
+	}
 }
 
 func main() {
