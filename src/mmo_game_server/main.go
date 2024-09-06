@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go_code/src/mmo_game_server/apis"
 	"go_code/src/mmo_game_server/core"
 	"go_code/src/zinx/ziface"
@@ -29,14 +30,17 @@ func DoConnectionBegin(conn ziface.IConnection) {
 // 玩家下线
 func DoConnectionEnd(conn ziface.IConnection) {
 	pid, err := conn.GetProperty("pid")
+	fmt.Println("下线玩家的id为：", pid)
 	if err != nil {
 		return
 	}
 
 	player := core.WorldMgrObj.GetPlayerByPid(pid.(int32))
+
 	player.Offline()
 
 	core.WorldMgrObj.RemovePlayerByPid(pid.(int32))
+	fmt.Println("当前在线的玩家有：", core.WorldMgrObj.Players)
 }
 
 func main() {

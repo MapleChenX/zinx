@@ -65,9 +65,9 @@ func (c *Connection) Start() {
 	c.TcpServer.CallOnConnStart(c)
 }
 
+// 读任务完毕以后就会关闭写任务
 func (c *Connection) StartReader() {
-	fmt.Println("Reader Goroutine is running...")
-	defer fmt.Println("connID = ", c.ConnID, "Reader is exit, remote addr is ", c.RemoteAddr().String())
+	defer fmt.Println("[连接关闭成功] connID = ", c.ConnID, "Reader is exit, remote addr is ", c.RemoteAddr().String())
 	defer c.Stop()
 
 	for {
@@ -76,7 +76,12 @@ func (c *Connection) StartReader() {
 		// 阻塞读取客户端数据
 		msg, err := pack.GetMsgFromConn(c.Conn)
 		if err != nil {
-			fmt.Println("GetMsgFromConn error: ", err)
+			// 如果是EOF错误
+			if err.Error() == "EOF" {
+				fmt.Printf("[连接正常断开]：%s\n", c.RemoteAddr().String())
+			} else {
+				fmt.Println("[错误] 连接出现问题！", err)
+			}
 			break
 		}
 
@@ -95,8 +100,7 @@ func (c *Connection) StartReader() {
 
 // start write goroutine
 func (c *Connection) StartWriter() {
-	fmt.Println("[Writer Goroutine is running]")
-	defer fmt.Println(c.RemoteAddr().String(), "[conn Writer exit!]")
+	defer fmt.Println(c.RemoteAddr().String(), "[写工作退出]")
 
 	// 阻塞等待channel的消息
 	for {
@@ -180,6 +184,11 @@ func (c *Connection) SendMsg(msg ziface.IMessage) error {
 	return nil
 }
 
+/**
+ * 发送消息给客户端
+ * @param id 消息ID/cmd
+ * @param data 消息内容
+ */
 func (c *Connection) SendData(id uint32, data []byte) error {
 	msg := &Message{
 		Id:      id,

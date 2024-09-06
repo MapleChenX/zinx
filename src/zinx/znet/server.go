@@ -127,14 +127,14 @@ func (s *Server) SetOnConnStop(hook func(connection ziface.IConnection)) {
 
 func (s *Server) CallOnConnStart(connection ziface.IConnection) {
 	if s.OnConnStart != nil {
-		fmt.Println("Call OnConnStart()...")
+		fmt.Println("连接建立时的回调函数启动！")
 		s.OnConnStart(connection)
 	}
 }
 
 func (s *Server) CallOnConnStop(connection ziface.IConnection) {
 	if s.OnConnStop != nil {
-		fmt.Println("Call OnConnStop()...")
+		fmt.Println("连接关闭时的回调函数启动！")
 		s.OnConnStop(connection)
 	}
 }

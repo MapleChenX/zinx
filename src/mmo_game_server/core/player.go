@@ -43,10 +43,10 @@ func NewPlayer(conn ziface.IConnection) *Player {
 	return p
 }
 
-// 发送消息给客户端肉
+// 发送消息给客户端
 func (p *Player) SendMsg(msgId uint32, msg proto.Message) {
-	if p.Conn == nil {
-		fmt.Println("Connection in player is nil")
+	if p == nil || p.Conn == nil {
+		fmt.Println("当前玩家为空！无法发送消息")
 		return
 	}
 

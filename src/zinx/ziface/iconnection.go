@@ -18,6 +18,12 @@ type IConnection interface {
 
 	// send message to client
 	SendMsg(msg IMessage) error
+
+	/**
+	 * 发送消息给客户端
+	 * @param id 消息ID/cmd
+	 * @param data 消息内容
+	 */
 	SendData(id uint32, data []byte) error
 
 	// set property

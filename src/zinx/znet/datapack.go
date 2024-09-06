@@ -89,10 +89,6 @@ func (dp *DataPack) GetMsgFromConn(conn net.Conn) (ziface.IMessage, error) {
 	headData := make([]byte, 8)
 	_, err := conn.Read(headData)
 	if err != nil {
-		if err.Error() == "EOF" {
-			return nil, err
-		}
-		fmt.Println("recv buf err ", err)
 		return nil, err
 	}
 
