@@ -167,16 +167,43 @@ func (p *Player) SyncSurrounding() {
 	p.SendMsg(202, surroundingPlayersMsgs)
 }
 
-func (p *Player) BroadcastSurrounding(msg proto.Message) {
-	// 得到当前玩家周边的九宫格信息
-	grids := WorldMgrObj.AoiMgr.GetSurroundGridsByGid(int(p.PID))
+// 获取周围的玩家
+func (p *Player) GetSurroundingPlayers() (players []*Player) {
+	// 得到当前玩家周边的九宫格信息（包括自己）
+	pids := WorldMgrObj.AoiMgr.GetPidsByPos(p.X, p.Z)
+
+	// 获取周围玩家
+	for _, pid := range pids {
+		player := WorldMgrObj.GetPlayerByPid(int32(pid))
+		players = append(players, player)
+	}
+	return
+}
+
+// 更新玩家的坐标
+func (p *Player) UpdatePosition(x, y, z, v float32) {
+	p.X = x
+	p.Y = y
+	p.Z = z
+	p.V = v
+
+	// 位置移动信息
+	msg := &pb.BroadCast{
+		Pid: p.PID,
+		Tp:  4, // 4-移动之后的位置信息
+		Data: &pb.BroadCast_P{
+			P: &pb.Position{
+				X: p.X,
+				Y: p.Y,
+				Z: p.Z,
+				V: p.V,
+			},
+		},
+	}
 
 	// 广播给周围的玩家（包括自己）
-	for _, grid := range grids {
-		players := grid.GetPlayers()
-
-		for _, player := range players {
-			player.SendMsg(200, msg)
-		}
+	players := p.GetSurroundingPlayers()
+	for _, player := range players {
+		player.SendMsg(200, msg) // 200表示广播消息
 	}
 }

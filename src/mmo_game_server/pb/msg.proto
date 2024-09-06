@@ -4,8 +4,6 @@ package protobuf;
 option go_package = "mmo_game_server/pb";
 option csharp_namespace = "Pb";
 
-// 127.0.0.1
-
 //同步客户端玩家ID
 message SyncPid{
   int32 Pid=1;  // 玩家ID
@@ -14,7 +12,7 @@ message SyncPid{
 //广播玩家数据
 message BroadCast{
   int32 Pid=1;
-  int32 Tp=2; // 1-聊天，2-移动，3-攻击
+  int32 Tp=2; // 1-聊天，2-上线位置，3-攻击，4-移动位置
   oneof Data {
     string Content=3;
     Position P=4;

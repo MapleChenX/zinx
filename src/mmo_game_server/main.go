@@ -40,6 +40,7 @@ func main() {
 
 	// 3 添加router
 	server.AddRouter(2, &apis.WorldChatApi{})
+	server.AddRouter(3, &apis.MoveApi{})
 
 	// 4 启动server
 	server.Serve()
