@@ -16,6 +16,9 @@ func DoConnectionBegin(conn ziface.IConnection) {
 	// 给客户端发送id为200的消息
 	player.BroadCastStartPosition()
 
+	// 玩家上线，同步玩家之间的位置信息
+	player.SyncSurrounding()
+
 	// 将新上线的玩家添加到世界管理器中
 	core.WorldMgrObj.AddPlayer(player)
 

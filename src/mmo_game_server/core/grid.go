@@ -53,12 +53,23 @@ func (g *Grid) Remove(playerID int) {
 
 }
 
-// 获取当前网格所有玩家
+// 获取当前网格所有玩家id
 func (g *Grid) GetPlayerIDs() (playerIDs []int) {
 	g.PlayerLock.RLock()
 	defer g.PlayerLock.RUnlock()
+
 	for playerID := range g.PlayerIds {
 		playerIDs = append(playerIDs, playerID)
+	}
+	return
+}
+
+// 获取当前网格所有玩家
+func (g *Grid) GetPlayers() (players []*Player) {
+	g.PlayerLock.RLock()
+	defer g.PlayerLock.RUnlock()
+	for playerID := range g.PlayerIds {
+		players = append(players, WorldMgrObj.GetPlayerByPid(int32(playerID)))
 	}
 	return
 }

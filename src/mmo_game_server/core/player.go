@@ -20,7 +20,7 @@ type Player struct {
 	V float32
 }
 
-var PidGen int32 = 114514
+var PidGen int32 = 100
 var PidLock sync.RWMutex
 
 // 一个玩家的对象
@@ -110,5 +110,73 @@ func (p *Player) Talk(content string) {
 	// 广播给周围的玩家（包括自己）
 	for _, player := range players {
 		player.SendMsg(200, msg)
+	}
+}
+
+// 同步玩家上线的位置
+func (p *Player) SyncSurrounding() {
+	// 1 位置msg
+	myPosMsg := &pb.BroadCast{
+		Pid: p.PID,
+		Tp:  2, // 2-标识玩家位置信息
+		Data: &pb.BroadCast_P{
+			P: &pb.Position{
+				X: p.X,
+				Y: p.Y,
+				Z: p.Z,
+				V: p.V,
+			},
+		},
+	}
+
+	// 得到当前玩家周边的九宫格信息（包括自己）
+	pids := WorldMgrObj.AoiMgr.GetPidsByPos(p.X, p.Z)
+
+	// 2 给周围玩家同步自己的上线位置（包括自己）
+	players := make([]*Player, 0, len(pids))
+	for _, pid := range pids {
+		player := WorldMgrObj.GetPlayerByPid(int32(pid))
+		players = append(players, player)
+	}
+	for _, player := range players {
+		player.SendMsg(200, myPosMsg)
+	}
+
+	// 3 给自己同步周围玩家的位置信息 --- 202消息
+	// 3.1 组建自己周围玩家的位置信息
+	surroundingPlayersMsg := make([]*pb.Player, 0, len(players))
+	for _, player := range players {
+		p := &pb.Player{
+			Pid: player.PID,
+			P: &pb.Position{
+				X: player.X,
+				Y: player.Y,
+				Z: player.Z,
+				V: player.V,
+			},
+		}
+		surroundingPlayersMsg = append(surroundingPlayersMsg, p)
+	}
+
+	// 3.2 组建MsgID:202消息
+	surroundingPlayersMsgs := &pb.SyncPlayers{
+		Ps: surroundingPlayersMsg,
+	}
+
+	// 3.3 发送消息给客户端
+	p.SendMsg(202, surroundingPlayersMsgs)
+}
+
+func (p *Player) BroadcastSurrounding(msg proto.Message) {
+	// 得到当前玩家周边的九宫格信息
+	grids := WorldMgrObj.AoiMgr.GetSurroundGridsByGid(int(p.PID))
+
+	// 广播给周围的玩家（包括自己）
+	for _, grid := range grids {
+		players := grid.GetPlayers()
+
+		for _, player := range players {
+			player.SendMsg(200, msg)
+		}
 	}
 }
