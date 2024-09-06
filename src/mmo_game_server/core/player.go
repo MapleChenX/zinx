@@ -20,16 +20,15 @@ type Player struct {
 	V float32
 }
 
-var PidGen int32 = 99
+var PidGen int32 = 114514
 var PidLock sync.RWMutex
 
 // 一个玩家的对象
 func NewPlayer(conn ziface.IConnection) *Player {
 	PidLock.Lock()
-	PidGen++
 	defer PidLock.Unlock()
 
-	return &Player{
+	p := &Player{
 		PID:  PidGen,
 		Conn: conn,
 		// 随机生成玩家的初始坐标
@@ -39,6 +38,9 @@ func NewPlayer(conn ziface.IConnection) *Player {
 		Z: float32(160 + rand.Intn(10)),
 		V: 0,
 	}
+
+	PidGen++
+	return p
 }
 
 // 发送消息给客户端肉
@@ -90,7 +92,23 @@ func (p *Player) BroadCastStartPosition() {
 	}
 
 	p.SendMsg(200, msg)
+}
 
-	// todo 广播给周围的玩家
+// talk
+func (p *Player) Talk(content string) {
+	// 组建MsgID:200消息
+	msg := &pb.BroadCast{
+		Pid: p.PID,
+		Tp:  1, // 1-广播聊天消息
+		Data: &pb.BroadCast_Content{
+			Content: content,
+		},
+	}
 
+	players := WorldMgrObj.GetAllPlayers()
+
+	// 广播给周围的玩家（包括自己）
+	for _, player := range players {
+		player.SendMsg(200, msg)
+	}
 }
