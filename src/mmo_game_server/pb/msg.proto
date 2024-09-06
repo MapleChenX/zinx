@@ -4,6 +4,7 @@ package protobuf;
 option go_package = "mmo_game_server/pb";
 option csharp_namespace = "Pb";
 
+// 127.0.0.1
 
 //同步客户端玩家ID
 message SyncPid{

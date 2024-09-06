@@ -3,6 +3,7 @@ package znet
 import (
 	"go_code/src/zinx/utils"
 	"go_code/src/zinx/ziface"
+	"log"
 )
 
 type MsgHandler struct {
@@ -26,7 +27,8 @@ func NewMsgHandler() *MsgHandler {
 func (mh *MsgHandler) DoMsgHandler(request ziface.IRequest) {
 	router, ok := mh.CmdsHandler[request.GetMsgID()]
 	if !ok {
-		router, _ = mh.CmdsHandler[0]
+		log.Println("api msgID = ", request.GetMsgID(), " is not found")
+		return
 	}
 
 	router.PreHandle(request)
