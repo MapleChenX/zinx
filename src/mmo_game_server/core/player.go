@@ -204,6 +204,27 @@ func (p *Player) UpdatePosition(x, y, z, v float32) {
 	// 广播给周围的玩家（包括自己）
 	players := p.GetSurroundingPlayers()
 	for _, player := range players {
-		player.SendMsg(200, msg) // 200表示广播消息
+		player.SendMsg(200, msg) // 200表示行为信息
+	}
+}
+
+// 玩家下线
+func (p *Player) Offline() {
+	// 得到当前玩家周边的九宫格信息（包括自己）
+	pids := WorldMgrObj.AoiMgr.GetPidsByPos(p.X, p.Z)
+
+	// 通知周围玩家自己下线
+	msg := &pb.SyncPid{
+		Pid: p.PID,
+	}
+
+	players := make([]*Player, 0, len(pids))
+	for _, pid := range pids {
+		player := WorldMgrObj.GetPlayerByPid(int32(pid))
+		players = append(players, player)
+	}
+
+	for _, player := range players {
+		player.SendMsg(201, msg) // 201表示玩家下线
 	}
 }

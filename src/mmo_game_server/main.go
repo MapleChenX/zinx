@@ -26,8 +26,17 @@ func DoConnectionBegin(conn ziface.IConnection) {
 	conn.SetProperty("pid", player.PID)
 }
 
+// 玩家下线
 func DoConnectionEnd(conn ziface.IConnection) {
+	pid, err := conn.GetProperty("pid")
+	if err != nil {
+		return
+	}
 
+	player := core.WorldMgrObj.GetPlayerByPid(pid.(int32))
+	player.Offline()
+
+	core.WorldMgrObj.RemovePlayerByPid(pid.(int32))
 }
 
 func main() {
