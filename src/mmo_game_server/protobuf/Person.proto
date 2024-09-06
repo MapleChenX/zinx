@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package protobuf;
+
+option go_package = "mmo_game_server/protobuf";
+
+// 数字表示顺序，不是值
+message Person {
+  string name = 1;
+  int32 id = 2;
+  string email = 3;
+  repeated PhoneNumber phones = 4; // repeated表示数组
+}
+
+message PhoneNumber {
+  string number = 1;
+  PhoneType type = 2;
+}
+
+enum PhoneType {
+  MOBILE = 0;
+  HOME = 1;
+  WORK = 2;
+}

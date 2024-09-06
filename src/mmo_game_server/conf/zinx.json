@@ -1,0 +1,10 @@
+{
+    "name": "MMOGameServer",
+    "version": "V0.99",
+    "host": "0.0.0.0",
+    "tcpPort": 1234,
+    "maxConn": 100,
+    "maxPackageSize": 4096,
+    "workerPoolSize": 10,
+    "maxWorkerTaskLen": 1024
+}
